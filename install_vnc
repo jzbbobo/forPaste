@@ -1,0 +1,108 @@
+Ubuntu 16.04自带桌面unity对VNC支持较差，需要在服务器上安装的gnome 3桌面
+sudo apt-get install xinit 
+sudo apt-get install gdm   #弹出选择窗口，选择gdm并回车
+sudo apt-get update        #为下一条命令准备，否则下一条命令执行错误。 
+sudo apt-get install ubuntu-desktop
+apt-get install gnome-panel gnome-settings-daemon metacity nautilus gnome-terminal vnc4server
+1
+2
+3
+4
+5
+准备
+如果你的系统中已经存在有vnc4server 或 tightvncserver，需要将它们移除
+
+sudo apt remove -y vnc4server tightvncserver
+sudo apt install -y git and devscripts
+sudo apt install -y gnome-panel metacity
+1
+2
+3
+安装tigervncserver
+git clone 下来，用源码方式安装
+
+mkdir tigervnc
+cd tigervnc
+git clone https://github.com/TigerVNC/tigervnc
+cd tigervnc/
+git checkout 044e2b87da7121ef6cbd59e88b101d7d8e282896 -b 044e2b87da7121ef6cbd59e88b101d7d8e282896
+1
+2
+3
+4
+5
+编译和安装tigervnc
+
+ln -s contrib/packages/deb/ubuntu-xenial/debian
+sudo apt install -y $(grep Build-Depends: debian/control | sed -e 's/Build-Depends://g' -e 's/([^\)]*)//g' -e 's/,//g')
+chmod a+x debian/rules
+fakeroot debian/rules binary
+cd ..
+sudo dpkg -i *.deb || (sudo apt -f install -y; sudo dpkg -i *.deb)
+cd ..
+1
+2
+3
+4
+5
+6
+7
+修改 ${HOME}/.xsessionrc
+cat <<EOF > ~/.xsessionrc
+gnome-panel &
+metacity &
+EOF
+1
+2
+3
+4
+如果存在/.xsession 文件就将其删除 
+rm ~/.xsession
+
+配置和运行VNC Server
+配置vnc的密码
+
+$ vncpasswd
+Password:
+Verify:
+Would you like to enter a view-only password (y/n)? n
+Run vncserver. Remote access port is 5900 + display nummber.
+A port of below example is 5901.
+1
+2
+3
+4
+5
+6
+$ vncserver
+New 'ubuntu-16:1 (hiroom2)' desktop is ubuntu-16:1
+Starting applications specified in /home/hiroom2/.vnc/xstartup
+Log file is /home/hiroom2/.vnc/ubuntu-16:1.log
+Connect to vnc://<server>:5901 with remote vnc client.
+Input password and connection will be completed as below.
+1
+2
+3
+4
+5
+6
+运行 XRDP 服务
+Install and run xrdp.
+
+sudo apt install -y xrdp
+sudo systemctl enable xrdp
+sudo systemctl restart xrdp
+1
+2
+3
+这时，在远程的PC上运行vncviewer之类的客户端就能访问服务器上的Ubuntu16.04
+
+附录：vncserver 的常用管理命令
+vncserver -list vncserver -kill  :2    #杀掉vnc　:2进程 
+/usr/bin/vncserver -kill    :1         #杀掉vnc　:1进程
+vncserver -geometry 1920x1130          #生成vnc桌面，并指定分辨率
+--------------------- 
+作者：筋斗云计算 
+来源：CSDN 
+原文：https://blog.csdn.net/zhengmx100/article/details/78625084 
+版权声明：本文为博主原创文章，转载请附上博文链接！
