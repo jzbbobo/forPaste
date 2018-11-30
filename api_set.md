@@ -1,0 +1,3 @@
+- --enable-swagger-ui=true
+- --insecure-bind-address=0.0.0.0
+- --insecure-port=8080
